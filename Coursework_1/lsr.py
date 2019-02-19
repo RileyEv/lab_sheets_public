@@ -20,11 +20,11 @@ def least_squares_poly(x, y, n):
     return least_squares_calc(x_ls, y_ls)
 
 
-def least_squares_exp(x, y):
+def least_squares_sin(x, y):
     """
     Will carry out least squares for an exponential
     """
-    x_ls = np.vstack((np.ones(x.shape), np.exp(x))).T
+    x_ls = np.vstack((np.ones(x.shape), np.sin(x))).T
     y_ls = y.T
     return least_squares_calc(x_ls, y_ls)
 
@@ -38,7 +38,7 @@ def func_fitter(x, y):
     # for i in range(2, 7):
     lin_A = least_squares_poly(x, y, 1)
     poly_A = least_squares_poly(x, y, 3)  # Do some tests to ensure it is best modelled by cubic
-    exp_A = least_squares_exp(x, y)
+    sin_A = least_squares_sin(x, y)
 
     # Currently calculate each one and take the lowest error option.
     lin_func = poly_func(lin_A)
@@ -49,17 +49,17 @@ def func_fitter(x, y):
     polynomial_y = apply_funcs(x, [polynomial_func])
     polynomial_error = error(y, polynomial_y)
 
-    exponential_func = exp_func(exp_A)
-    exponential_y = apply_funcs(x, [exponential_func])
-    exponential_error = error(y, exponential_y)
+    sin_func = sine_func(sin_A)
+    sin_y = apply_funcs(x, [sin_func])
+    sin_error = error(y, sin_y)
 
-    if lin_error > exponential_error and polynomial_error > exponential_error:
-        print('Exponential')
-        return exponential_func
-    elif polynomial_error > lin_error and exponential_error > lin_error:
+    if lin_error > sin_error and polynomial_error > sin_error:
+        print('Sin')
+        return sin_func
+    elif polynomial_error > lin_error and sin_error > lin_error:
         print('Linear')
         return lin_func
-    elif lin_error > polynomial_error and exponential_error > polynomial_error:
+    elif lin_error > polynomial_error and sin_error > polynomial_error:
         print('Polynomial')
         return polynomial_func
 
@@ -83,12 +83,12 @@ def poly_func(A):
     return func
 
 
-def exp_func(A):
+def sine_func(A):
     """
     Creates a partially evaluated function for an exponential
     """
     def func(xi):
-        return A[0] + A[1] * np.exp(xi)
+        return A[0] + A[1] * np.sin(xi)
     return func
 
 
