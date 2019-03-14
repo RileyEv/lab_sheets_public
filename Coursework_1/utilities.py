@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import pandas as pd
 import numpy as np
-from matplotlib import pyplot as plt
+try:
+    from matplotlib import pyplot as plt
+except ImportError:
+    pass
 
 def load_points_from_file(filename):
     """Loads 2d points from a csv called filename

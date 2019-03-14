@@ -2,7 +2,12 @@
 import sys
 
 import numpy as np
-from matplotlib import pyplot as plt
+try:
+    from matplotlib import pyplot as plt
+except ImportError:
+    pass
+    # import warnings
+    # warnings.warn("--plot will not work")
 
 import utilities
 
@@ -35,7 +40,6 @@ def func_fitter(x, y):
     Linear, Polynomial, Unknown?(Maybe Exponential)
     """
     # Temp just use degree 1 polynomials
-    # for i in range(2, 7):
     lin_A = least_squares_poly(x, y, 1)
     poly_A = least_squares_poly(x, y, 3)  # Do some tests to ensure it is best modelled by cubic
     sin_A = least_squares_sin(x, y)
@@ -54,13 +58,19 @@ def func_fitter(x, y):
     sin_error = error(y, sin_y)
 
     if lin_error > sin_error and polynomial_error > sin_error:
-        print('Sin')
+        # print('Sin')
         return sin_func
     elif polynomial_error > lin_error and sin_error > lin_error:
-        print('Linear')
+        # print('Linear')
+        # print(len(lin_A))
         return lin_func
     elif lin_error > polynomial_error and sin_error > polynomial_error:
-        print('Polynomial')
+        # print(poly_A)
+        if abs(poly_A[2]) < 0.15 and abs(poly_A[3]) < 0.15 \
+                or (polynomial_error / lin_error) >= 0.9:
+            # print('linear')
+            return lin_func
+        # print('Polynomial')
         return polynomial_func
 
 
@@ -68,6 +78,10 @@ def error(y1, y2):
     """
     Calculates the error between the actual y and predicted y
     """
+    # error = 0
+    # for x, y in zip(y1, y2):
+    #     error += (x - y) ** 2
+    # return error
     return np.sum(((y1) - y2) ** 2)
 
 
@@ -108,7 +122,7 @@ def apply_funcs(x, funcs):
     """
     Will apply the model to x to generate a predicted y value
     """
-    y = np.copy(x)
+    y = np.ones(x.shape)
     for i, func in enumerate(funcs):
         y[i * 20: i * 20 + 20] = func(x[i * 20: i * 20 + 20])
     return y
@@ -120,8 +134,10 @@ def main(args):
         x, y = utilities.load_points_from_file(args[0])
         model_funcs = get_model(x, y)
         model_y = apply_funcs(x, model_funcs)
+        # print(model_y)
         model_error = error(model_y, y)
         print(model_error)
+
     if args_len == 2:
         if args[1] == '--plot':
             # Print out graph
